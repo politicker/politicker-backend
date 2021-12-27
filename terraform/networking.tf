@@ -10,44 +10,44 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public_d" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.1.0/25"
-  availability_zone = "us-east-2d"
+  availability_zone = "us-east-2a"
 
   tags = {
     "app"  = "politicker"
-    "Name" = "public | us-east-2d"
+    "Name" = "public | us-east-2a"
   }
 }
 
 resource "aws_subnet" "private_d" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.0/25"
-  availability_zone = "us-east-2d"
+  availability_zone = "us-east-2a"
 
   tags = {
     "app"  = "politicker"
-    "Name" = "private | us-east-2d"
+    "Name" = "private | us-east-2a"
   }
 }
 
 resource "aws_subnet" "public_e" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.1.128/25"
-  availability_zone = "us-east-2e"
+  availability_zone = "us-east-2b"
 
   tags = {
     "app"  = "politicker"
-    "Name" = "public | us-east-2e"
+    "Name" = "public | us-east-2b"
   }
 }
 
 resource "aws_subnet" "private_e" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.128/25"
-  availability_zone = "us-east-2e"
+  availability_zone = "us-east-2b"
 
   tags = {
     "app"  = "politicker"
-    "Name" = "private | us-east-2e"
+    "Name" = "private | us-east-2b"
   }
 }
 
