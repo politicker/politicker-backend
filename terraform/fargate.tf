@@ -44,7 +44,7 @@ resource "aws_ecs_task_definition" "graphql_api" {
     [
       {
         "name" : "politicker-graphql-api",
-        "image" : "politicker/graphql-api:latest",
+        "image" : "nginx:latest",
         "portMappings" : [
           {
             "containerPort" : 3000
