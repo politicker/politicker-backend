@@ -33,3 +33,15 @@ resource "aws_acm_certificate_validation" "internal" {
   certificate_arn         = aws_acm_certificate.internal.arn
   validation_record_fqdns = [for record in aws_route53_record.internal : record.fqdn]
 }
+
+resource "aws_route53_record" "staging" {
+  zone_id = data.aws_route53_zone.internal.zone_id
+  name    = "api.politicker-internal.net"
+  type    = "A"
+
+  alias {
+    name                   = data.aws_lb.main.dns_name
+    zone_id                = data.aws_lb.main.zone_id
+    evaluate_target_health = true
+  }
+}
