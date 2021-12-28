@@ -26,3 +26,11 @@ create function:
 
 dev:
 	cd api && yarn dev
+
+docker:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+
+	cd api
+	docker build -t politicker/graphql-api:latest .
+	docker push politicker/graphql-api:latest
