@@ -25,6 +25,7 @@ type Bill {
   subcommitteeCodes: [String]!
   summary: String!
   statuses: [Status!]!
+  liked: Boolean!
   likes: [Like!]!
   likeCount: Int!
 }
