@@ -6,6 +6,7 @@ resource "aws_ecs_service" "graphql_api" {
   task_definition = aws_ecs_task_definition.graphql_api.arn
   cluster         = aws_ecs_cluster.graphql_api.id
   launch_type     = "FARGATE"
+  desired_count   = 1
 
   network_configuration {
     assign_public_ip = false
