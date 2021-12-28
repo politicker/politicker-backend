@@ -1,0 +1,44 @@
+type Bill {
+  id: ID!
+  active: Boolean!
+  committeeCodes: [String]!
+  committees: String!
+  congressdotgovURL: String!
+  cosponsors: Int!
+  enacted: String!
+  govtrackURL: String!
+  gpoPdfURI: String!
+  housePassage: String!
+  introducedDate: String!
+  latestMajorAction: String!
+  latestMajorActionDate: String!
+  number: String!
+  primarySubject: String!
+  senatePassage: String!
+  shortTitle: String!
+  sponsorID: String!
+  sponsorName: String!
+  sponsorParty: String!
+  sponsorState: String!
+  sponsorTitle: String!
+  sponsorURI: String!
+  subcommitteeCodes: [String]!
+  summary: String!
+  statuses: [Status!]!
+  likes: [Like!]!
+  likeCount: Int!
+}
+
+type Like {
+  id: ID!
+}
+
+type Status {
+  id: ID!
+  actionDate: String!
+  actionName: String!
+}
+
+type Query {
+  bills: [Bill!]!
+}

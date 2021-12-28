@@ -23,3 +23,6 @@ create function:
 		--working-directory functions/{{ function }} \
 		--justfile ./functions.justfile \
 		build package create-cmd cleanup
+
+dev:
+	cd api && yarn dev
