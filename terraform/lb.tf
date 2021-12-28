@@ -10,17 +10,17 @@ resource "aws_lb_target_group" "graphql_api" {
     path    = "/health"
   }
 
-  depends_on = [aws_alb.graphql_api]
+  depends_on = [aws_lb.main]
 }
 
-resource "aws_alb" "graphql_api" {
-  name               = "politicker-graphql-api-lb"
+resource "aws_lb" "main" {
+  name               = "politicker-main-lb"
   internal           = false
   load_balancer_type = "application"
 
   subnets = [
-    aws_subnet.public_d.id,
-    aws_subnet.public_e.id,
+    aws_subnet.public_a.id,
+    aws_subnet.public_b.id,
   ]
 
   security_groups = [
@@ -33,7 +33,7 @@ resource "aws_alb" "graphql_api" {
 }
 
 resource "aws_alb_listener" "graphql_api_http" {
-  load_balancer_arn = aws_alb.graphql_api.arn
+  load_balancer_arn = aws_alb.main.arn
   port              = "443"
   protocol          = "HTTPS"
 
@@ -44,7 +44,7 @@ resource "aws_alb_listener" "graphql_api_http" {
 }
 
 resource "aws_lb_listener" "internal_http_redirect" {
-  load_balancer_arn = aws_lb.graphql_api.arn
+  load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"
 
