@@ -32,10 +32,12 @@ resource "aws_lb" "main" {
   depends_on = [aws_internet_gateway.igw]
 }
 
-resource "aws_alb_listener" "graphql_api_http" {
+resource "aws_alb_listener" "graphql_api_https" {
   load_balancer_arn = aws_lb.main.arn
   port              = "443"
   protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = aws_acm_certificate.internal.arn
 
   default_action {
     type             = "forward"
