@@ -25,7 +25,7 @@ resource "aws_ecs_service" "graphql_api" {
   load_balancer {
     target_group_arn = aws_lb_target_group.graphql_api.arn
     container_name   = "politicker-graphql-api"
-    container_port   = "80"
+    container_port   = "3000"
   }
 }
 
@@ -48,7 +48,7 @@ resource "aws_ecs_task_definition" "graphql_api" {
         "image" : "politicker/graphql-api:latest",
         "portMappings" : [
           {
-            "containerPort" : 80
+            "containerPort" : 3000
           }
         ],
         "logConfiguration" : {

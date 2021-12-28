@@ -1,6 +1,6 @@
 resource "aws_lb_target_group" "graphql_api" {
   name        = "politicker-graphql-api"
-  port        = 80
+  port        = 3000
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = aws_vpc.main.id
