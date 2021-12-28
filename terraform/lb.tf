@@ -33,7 +33,7 @@ resource "aws_lb" "main" {
 }
 
 resource "aws_alb_listener" "graphql_api_http" {
-  load_balancer_arn = aws_alb.main.arn
+  load_balancer_arn = aws_lb.main.arn
   port              = "443"
   protocol          = "HTTPS"
 
