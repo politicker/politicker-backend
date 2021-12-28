@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "next/core-web-vitals",
+    "standard"
+  ],
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "env": {
+    "jest": true
+  },
+  "rules": {
+    "no-undef": "off", // https://github.com/typescript-eslint/typescript-eslint/blob/master/docs/getting-started/linting/FAQ.md#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
+    "jsx-quotes": "error",
+    "react/jsx-curly-brace-presence": "error",
+    "react/jsx-indent": ["error", 2],
+    "react/jsx-indent-props": ["error", 2],
+    "indent": ["error", "tab"],
+    "no-tabs": "off"
+  }
+}

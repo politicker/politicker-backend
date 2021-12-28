@@ -34,3 +34,11 @@ docker:
 	cd api
 	docker build -t politicker/graphql-api:latest .
 	docker push politicker/graphql-api:latest
+
+deploy:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+
+	TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition politicker-graphql-api --region us-east-2)
+
+	echo $TASK_DEFINITION | jq

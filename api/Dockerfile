@@ -9,6 +9,8 @@ RUN yarn
 
 COPY . .
 
-EXPOSE 80
+RUN TZ='America/New_York' date > /app/DEPLOY_DATE
+
+EXPOSE 8000
 
 CMD ["yarn", "start"]
