@@ -6,6 +6,10 @@ resource "aws_acm_certificate" "internal" {
   domain_name       = "politicker-internal.net"
   validation_method = "DNS"
 
+  subject_alternative_names = [
+    "api.politicker-internal.net",
+  ]
+
   lifecycle {
     create_before_destroy = true
   }
