@@ -4,7 +4,7 @@
 resource "aws_ecs_service" "graphql_api" {
   name            = "graphql-api"
   task_definition = aws_ecs_task_definition.graphql_api.arn
-  cluster         = aws_ecs_cluster.graphql_api.id
+  cluster         = aws_ecs_cluster.main.id
   launch_type     = "FARGATE"
   desired_count   = 1
 
