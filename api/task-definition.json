@@ -8,7 +8,7 @@
 
   "containerDefinitions": [
     {
-      "name": "politicker-graphql-api",
+      "name": "graphql-api",
       "image": "N/A",
       "cpu": 0,
       "portMappings": [
