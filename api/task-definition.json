@@ -1,5 +1,5 @@
 {
-  "family": "politicker-graphql-api",
+  "family": "graphql-api",
   "executionRoleArn": "arn:aws:iam::114418550400:role/politicker-graphql-api-task-execution-role",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
