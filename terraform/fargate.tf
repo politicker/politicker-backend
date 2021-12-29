@@ -2,7 +2,7 @@
 # guide on creating these resources
 
 resource "aws_ecs_service" "graphql_api" {
-  name            = "politicker-graphql-api"
+  name            = "graphql-api"
   task_definition = aws_ecs_task_definition.graphql_api.arn
   cluster         = aws_ecs_cluster.graphql_api.id
   launch_type     = "FARGATE"
@@ -24,13 +24,13 @@ resource "aws_ecs_service" "graphql_api" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.graphql_api.arn
-    container_name   = "politicker-graphql-api"
+    container_name   = "graphql-api"
     container_port   = "8000"
   }
 }
 
-resource "aws_ecs_cluster" "graphql_api" {
-  name = "politicker-graphql-api"
+resource "aws_ecs_cluster" "main" {
+  name = "politicker"
 }
 
 resource "aws_cloudwatch_log_group" "graphql_api" {
@@ -38,13 +38,13 @@ resource "aws_cloudwatch_log_group" "graphql_api" {
 }
 
 resource "aws_ecs_task_definition" "graphql_api" {
-  family             = "politicker-graphql-api"
+  family             = "graphql-api"
   execution_role_arn = aws_iam_role.graphql_api_task_execution_role.arn
 
   container_definitions = jsonencode(
     [
       {
-        "name" : "politicker-graphql-api",
+        "name" : "graphql-api",
         "image" : "politicker/graphql-api:latest",
         "portMappings" : [
           {
