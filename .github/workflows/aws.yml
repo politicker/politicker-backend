@@ -46,6 +46,9 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     environment: production
+    defaults:
+      run:
+        working-directory: ./api
 
     steps:
     - name: Checkout
