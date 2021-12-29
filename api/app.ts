@@ -17,6 +17,10 @@ app.get('/date', (_, res) => {
 	res.status(200).send(deployDate)
 })
 
+app.get('/health', (_, res) => {
+	res.status(200).send("OK")
+})
+
 ;(async () => {
 	const typeDefs = readFileSync('./graphql/schema.graphql').toString('utf-8')
 
