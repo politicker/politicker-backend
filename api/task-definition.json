@@ -1,0 +1,40 @@
+{
+  "family": "politicker-graphql-api",
+  "executionRoleArn": "arn:aws:iam::114418550400:role/politicker-graphql-api-task-execution-role",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+
+  "containerDefinitions": [
+    {
+      "name": "politicker-graphql-api",
+      "image": "N/A",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/politicker-graphql-api",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+
+  "requiresAttributes": [
+    { "name": "com.amazonaws.ecs.capability.logging-driver.awslogs" },
+    { "name": "ecs.capability.execution-role-awslogs" },
+    { "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19" },
+    { "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18" },
+    { "name": "ecs.capability.task-eni" }
+  ]
+}
