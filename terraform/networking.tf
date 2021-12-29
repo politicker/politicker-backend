@@ -18,7 +18,7 @@ resource "aws_subnet" "public_a" {
   }
 }
 
-resource "aws_subnet" "private_d" {
+resource "aws_subnet" "private_a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.0/25"
   availability_zone = "us-east-2a"
@@ -40,7 +40,7 @@ resource "aws_subnet" "public_b" {
   }
 }
 
-resource "aws_subnet" "private_e" {
+resource "aws_subnet" "private_b" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.2.128/25"
   availability_zone = "us-east-2b"
@@ -72,8 +72,8 @@ resource "aws_route_table_association" "public_a_subnet" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "private_d_subnet" {
-  subnet_id      = aws_subnet.private_d.id
+resource "aws_route_table_association" "private_a_subnet" {
+  subnet_id      = aws_subnet.private_a.id
   route_table_id = aws_route_table.private.id
 }
 
@@ -82,8 +82,8 @@ resource "aws_route_table_association" "public_b_subnet" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table_association" "private_e_subnet" {
-  subnet_id      = aws_subnet.private_e.id
+resource "aws_route_table_association" "private_b_subnet" {
+  subnet_id      = aws_subnet.private_b.id
   route_table_id = aws_route_table.private.id
 }
 
@@ -163,5 +163,24 @@ resource "aws_security_group" "ingress_api" {
     to_port     = 8000
     protocol    = "TCP"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "db_access" {
+  name        = "politicker-db-access"
+  description = "Allows access to RDS instance"
+  vpc_id      = aws_vpc.main.id
+}
+
+resource "aws_security_group" "ingress_db" {
+  name        = "politicker-db-ingress"
+  description = "Ingress for DB"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "TCP"
+    security_groups = [aws_security_group.db_access.id]
   }
 }
