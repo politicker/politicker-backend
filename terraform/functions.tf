@@ -51,12 +51,13 @@ resource "aws_iam_role" "lambda" {
 resource "aws_cloudwatch_event_rule" "daily" {
   name                = "politicker-run-daily"
   schedule_expression = "rate(1 day)"
-
-  tags = {
-    "app" = "politicker"
-  }
 }
 
+resource "aws_cloudwatch_event_target" "lambda" {
+  for_each = aws_lambda_function.functions
+  arn      = each.value.arn
+  rule     = aws_cloudwatch_event_rule.daily.id
+}
 resource "aws_lambda_permission" "allow_cloudwatch" {
   for_each      = local.functions
   function_name = each.value
