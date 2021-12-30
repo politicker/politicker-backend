@@ -59,3 +59,12 @@ resource "aws_lambda_alias" "test_alias" {
   description      = "alias"
   function_version = "$LATEST"
 }
+
+data "aws_iam_policy" "AWSLambdaVPCAccessExecutionRole" {
+  name = "AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "attach_AWSLambdaVPCAccessExecutionRole" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = data.aws_iam_policy.AWSLambdaVPCAccessExecutionRole.arn
+}
