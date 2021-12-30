@@ -1,4 +1,4 @@
-package p
+package main
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"cloud.google.com/go/firestore"
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 // Response is a response
@@ -60,8 +61,8 @@ type PubSubMessage struct {
 	Data []byte `json:"data"`
 }
 
-// HandlePubSub handles pub subs
-func HandlePubSub(ctx context.Context, _ PubSubMessage) error {
+// Handler handles pub subs
+func handler(ctx context.Context, _ PubSubMessage) error {
 	chambers := []string{"house", "senate"}
 	types := []string{"introduced", "updated", "active", "passed", "enacted", "vetoed"}
 	congress := "117"
@@ -137,4 +138,9 @@ func saveCollection(ctx context.Context, collection *firestore.CollectionRef, bi
 		}
 	}
 	return nil
+}
+
+func main() {
+	// Make the handler available for Remote Procedure Call by AWS Lambda
+	lambda.Start(handler)
 }

@@ -12,6 +12,7 @@ resource "aws_lambda_function" "functions" {
   role          = aws_iam_role.lambda.arn
   handler       = "main"
   runtime       = "go1.x"
+  filename      = "./main.zip"
 
   vpc_config {
     subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id]
@@ -39,4 +40,22 @@ resource "aws_iam_role" "lambda" {
       }
     ]
   })
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  for_each      = local.functions
+  function_name = each.value
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  principal     = "events.amazonaws.com"
+  source_arn    = "arn:aws:events:eu-west-1:111122223333:rule/RunDaily"
+  qualifier     = "${each.value}-alias"
+}
+
+resource "aws_lambda_alias" "test_alias" {
+  for_each         = local.functions
+  function_name    = each.value
+  name             = "${each.value}-alias"
+  description      = "alias"
+  function_version = "$LATEST"
 }
