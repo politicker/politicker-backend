@@ -53,14 +53,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-2
 
-    - name: Generate build files
-      uses: thatisuday/go-cross-build@v1
-      with:
-          platforms: 'linux/amd64'
-          name: 'main'
-          dest: 'dist'
-
-    - run: mv ./dist/main-linux-amd64 ./main
+    - uses: actions/setup-go@v2
+    - run: go build main.go
     - run: zip main.zip main
 
     - run: |
