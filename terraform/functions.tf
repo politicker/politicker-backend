@@ -63,7 +63,7 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   principal     = "events.amazonaws.com"
-  source_arn    = "arn:aws:events:eu-west-1:111122223333:rule/RunDaily"
+  source_arn    = aws_cloudwatch_event_rule.daily.arn
   qualifier     = "${each.value}-alias"
 }
 
