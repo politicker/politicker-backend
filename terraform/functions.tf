@@ -56,10 +56,6 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
   principal     = "events.amazonaws.com"
   source_arn    = "arn:aws:events:eu-west-1:111122223333:rule/RunDaily"
   qualifier     = "${each.value}-alias"
-
-  depends_on = [
-    aws_lambda_function.alias[each.value]
-  ]
 }
 
 resource "aws_lambda_alias" "alias" {
@@ -68,10 +64,6 @@ resource "aws_lambda_alias" "alias" {
   name             = "${each.value}-alias"
   description      = "alias"
   function_version = "$LATEST"
-
-  depends_on = [
-    aws_lambda_function.functions[each.value]
-  ]
 }
 
 data "aws_iam_policy" "policies" {
