@@ -58,13 +58,13 @@ resource "aws_iam_role" "lambda" {
 #   qualifier     = "${each.value}-alias"
 # }
 
-# resource "aws_lambda_alias" "alias" {
-#   for_each         = local.functions
-#   function_name    = each.value
-#   name             = "${each.value}-alias"
-#   description      = "alias"
-#   function_version = "$LATEST"
-# }
+resource "aws_lambda_alias" "alias" {
+  for_each         = local.functions
+  function_name    = each.value
+  name             = "${each.value}-alias"
+  description      = "alias"
+  function_version = "$LATEST"
+}
 
 data "aws_iam_policy" "policies" {
   for_each = local.policies
