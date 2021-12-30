@@ -4,6 +4,12 @@ locals {
     "parse-and-store-feeds",
     "propublica"
   ])
+
+  policies = toset([
+    "AWSLambdaBasicExecutionRole",
+    "AWSLambdaVPCAccessExecutionRole",
+    "CloudWatchLambdaInsightsExecutionRolePolicy"
+  ])
 }
 
 resource "aws_lambda_function" "functions" {
@@ -60,11 +66,13 @@ resource "aws_lambda_alias" "test_alias" {
   function_version = "$LATEST"
 }
 
-data "aws_iam_policy" "AWSLambdaVPCAccessExecutionRole" {
-  name = "AWSLambdaVPCAccessExecutionRole"
+data "aws_iam_policy" "policies" {
+  for_each = local.policies
+  name     = each.value
 }
 
-resource "aws_iam_role_policy_attachment" "attach_AWSLambdaVPCAccessExecutionRole" {
+resource "aws_iam_role_policy_attachment" "attach_policies" {
+  for_each   = data.aws_iam_policy.policies
   role       = aws_iam_role.lambda.name
-  policy_arn = data.aws_iam_policy.AWSLambdaVPCAccessExecutionRole.arn
+  policy_arn = each.value.arn
 }
