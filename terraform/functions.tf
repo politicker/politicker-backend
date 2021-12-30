@@ -49,19 +49,24 @@ resource "aws_iam_role" "lambda" {
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch" {
-  for_each      = aws_lambda_function.functions
-  function_name = each.value.name
+  for_each      = local.functions
+  function_name = each.value
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   principal     = "events.amazonaws.com"
   source_arn    = "arn:aws:events:eu-west-1:111122223333:rule/RunDaily"
-  qualifier     = "${each.value.name}-alias"
+  qualifier     = "${each.value}-alias"
+
+  depends_on = [
+    aws_lambda_function.functions[each.value],
+    aws_lambda_function.alias[each.value]
+  ]
 }
 
-resource "aws_lambda_alias" "test_alias" {
-  for_each         = aws_lambda_function.functions
-  function_name    = each.value.name
-  name             = "${each.value.name}-alias"
+resource "aws_lambda_alias" "alias" {
+  for_each         = local.functions
+  function_name    = each.value
+  name             = "${each.value}-alias"
   description      = "alias"
   function_version = "$LATEST"
 }
