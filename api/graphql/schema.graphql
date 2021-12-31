@@ -28,6 +28,12 @@ type Bill {
   liked: Boolean!
   likes: [Like!]!
   likeCount: Int!
+  categories: [Category!]!
+}
+
+type Category {
+  id: ID!
+  name: String!
 }
 
 type Like {
