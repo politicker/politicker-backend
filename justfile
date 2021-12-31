@@ -27,6 +27,9 @@ create function:
 dev:
 	cd api && yarn dev
 
+serve:
+	cd api && yarn start
+
 docker:
 	#!/usr/bin/env bash
 	set -euxo pipefail
