@@ -46,6 +46,18 @@ type Status {
   actionName: String!
 }
 
+input CreateLikeInput {
+  billID: ID!
+}
+
+type CreateLikeResponse {
+  bill: Bill!
+}
+
 type Query {
   bills: [Bill!]!
+}
+
+type Mutation {
+  createLike(input: CreateLikeInput): CreateLikeResponse
 }
