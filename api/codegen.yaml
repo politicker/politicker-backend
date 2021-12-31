@@ -1,0 +1,7 @@
+schema: ./graphql/schema.graphql # GraphQL types (input file)
+overwrite: true
+generates:
+  ./generated/schema-types.d.ts: # Typescript types (output generated file)
+    plugins: # List of needed plugins (installed as devDeps)
+      - typescript
+      - typescript-resolvers
