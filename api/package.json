@@ -7,8 +7,9 @@
   "scripts": {
     "start": "ts-node app.ts",
     "dev": "ts-node-dev --inspect --files app.ts",
-    "generate": "graphql-codegen --config ./codegen.yaml"
     "generate": "graphql-codegen --config ./codegen.yaml",
+    "migrate": "yarn knex migrate:latest",
+    "rollback": "yarn knex migrate:rollback"
   },
   "dependencies": {
     "apollo-server-express": "^3.5.0",

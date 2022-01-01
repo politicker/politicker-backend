@@ -30,6 +30,12 @@ dev:
 serve:
 	cd api && yarn start
 
+migrate:
+	cd api && yarn knex migrate:latest
+
+rollback:
+	cd api && yarn knex migrate:rollback
+
 docker:
 	#!/usr/bin/env bash
 	set -euxo pipefail
