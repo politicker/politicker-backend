@@ -1,4 +1,4 @@
-import { GraphQLResolveInfo } from 'graphql';
+import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -12,61 +12,61 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-};
-
-export type Bill = {
-  __typename?: 'Bill';
-  active: Scalars['Boolean'];
-  categories: Array<Category>;
-  committeeCodes: Array<Maybe<Scalars['String']>>;
-  committees: Scalars['String'];
-  congressdotgovURL: Scalars['String'];
-  cosponsors: Scalars['Int'];
-  enacted: Scalars['String'];
-  govtrackURL: Scalars['String'];
-  gpoPdfURI: Scalars['String'];
-  housePassage: Scalars['String'];
-  id: Scalars['ID'];
-  introducedDate: Scalars['String'];
-  latestMajorAction: Scalars['String'];
-  latestMajorActionDate: Scalars['String'];
-  likeCount: Scalars['Int'];
-  liked: Scalars['Boolean'];
-  likes: Array<Like>;
-  number: Scalars['String'];
-  primarySubject: Scalars['String'];
-  senatePassage: Scalars['String'];
-  shortTitle: Scalars['String'];
-  sponsorID: Scalars['String'];
-  sponsorName: Scalars['String'];
-  sponsorParty: Scalars['String'];
-  sponsorState: Scalars['String'];
-  sponsorTitle: Scalars['String'];
-  sponsorURI: Scalars['String'];
-  statuses: Array<Status>;
-  subcommitteeCodes: Array<Maybe<Scalars['String']>>;
-  summary: Scalars['String'];
-};
-
-export type Category = {
-  __typename?: 'Category';
-  id: Scalars['ID'];
-  name: Scalars['String'];
+  Date: any;
 };
 
 export type CreateLikeInput = {
-  billID: Scalars['ID'];
+  MatterID: Scalars['ID'];
 };
 
 export type CreateLikeResponse = {
   __typename?: 'CreateLikeResponse';
-  bill: Bill;
+  matter: Matter;
 };
 
 export type Like = {
   __typename?: 'Like';
   id: Scalars['ID'];
 };
+
+export type Matter = {
+  __typename?: 'Matter';
+  agendaDate: Scalars['Date'];
+  billWould: Scalars['String'];
+  committeeName: Scalars['String'];
+  enactedAt: Scalars['Date'];
+  enactmentNumber: Scalars['String'];
+  fileNumber: Scalars['String'];
+  id: Scalars['ID'];
+  introducedAt: Scalars['Date'];
+  lastModifiedAt: Scalars['Date'];
+  likeCount: Scalars['Int'];
+  liked: Scalars['Boolean'];
+  likes: Array<Like>;
+  longDescription: Scalars['String'];
+  nycLegislatureGuid: Scalars['String'];
+  passedAt: Scalars['Date'];
+  shortDescription: Scalars['String'];
+  status: MatterStatus;
+  typeName: Scalars['String'];
+  updatedAt: Scalars['Date'];
+};
+
+export enum MatterStatus {
+  Adopted = 'ADOPTED',
+  Approved = 'APPROVED',
+  Committee = 'COMMITTEE',
+  Disapproved = 'DISAPPROVED',
+  Enacted = 'ENACTED',
+  Failed = 'FAILED',
+  Filed = 'FILED',
+  General = 'GENERAL',
+  Hearing = 'HEARING',
+  Local = 'LOCAL',
+  Received = 'RECEIVED',
+  Special = 'SPECIAL',
+  Withdrawn = 'WITHDRAWN'
+}
 
 export type Mutation = {
   __typename?: 'Mutation';
@@ -80,14 +80,7 @@ export type MutationCreateLikeArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  bills: Array<Bill>;
-};
-
-export type Status = {
-  __typename?: 'Status';
-  actionDate: Scalars['String'];
-  actionName: Scalars['String'];
-  id: Scalars['ID'];
+  matters: Array<Matter>;
 };
 
 
@@ -159,83 +152,69 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = {
-  Bill: ResolverTypeWrapper<Bill>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
-  Category: ResolverTypeWrapper<Category>;
   CreateLikeInput: CreateLikeInput;
   CreateLikeResponse: ResolverTypeWrapper<CreateLikeResponse>;
+  Date: ResolverTypeWrapper<Scalars['Date']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Like: ResolverTypeWrapper<Like>;
+  Matter: ResolverTypeWrapper<Matter>;
+  MatterStatus: MatterStatus;
   Mutation: ResolverTypeWrapper<{}>;
   Query: ResolverTypeWrapper<{}>;
-  Status: ResolverTypeWrapper<Status>;
   String: ResolverTypeWrapper<Scalars['String']>;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = {
-  Bill: Bill;
   Boolean: Scalars['Boolean'];
-  Category: Category;
   CreateLikeInput: CreateLikeInput;
   CreateLikeResponse: CreateLikeResponse;
+  Date: Scalars['Date'];
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   Like: Like;
+  Matter: Matter;
   Mutation: {};
   Query: {};
-  Status: Status;
   String: Scalars['String'];
 };
 
-export type BillResolvers<ContextType = any, ParentType extends ResolversParentTypes['Bill'] = ResolversParentTypes['Bill']> = {
-  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  categories?: Resolver<Array<ResolversTypes['Category']>, ParentType, ContextType>;
-  committeeCodes?: Resolver<Array<Maybe<ResolversTypes['String']>>, ParentType, ContextType>;
-  committees?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  congressdotgovURL?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  cosponsors?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  enacted?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  govtrackURL?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  gpoPdfURI?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  housePassage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  introducedDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  latestMajorAction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  latestMajorActionDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  likeCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  liked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  likes?: Resolver<Array<ResolversTypes['Like']>, ParentType, ContextType>;
-  number?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  primarySubject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  senatePassage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  shortTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sponsorID?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sponsorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sponsorParty?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sponsorState?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sponsorTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sponsorURI?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  statuses?: Resolver<Array<ResolversTypes['Status']>, ParentType, ContextType>;
-  subcommitteeCodes?: Resolver<Array<Maybe<ResolversTypes['String']>>, ParentType, ContextType>;
-  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
-export type CategoryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Category'] = ResolversParentTypes['Category']> = {
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-};
-
 export type CreateLikeResponseResolvers<ContextType = any, ParentType extends ResolversParentTypes['CreateLikeResponse'] = ResolversParentTypes['CreateLikeResponse']> = {
-  bill?: Resolver<ResolversTypes['Bill'], ParentType, ContextType>;
+  matter?: Resolver<ResolversTypes['Matter'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
+  name: 'Date';
+}
 
 export type LikeResolvers<ContextType = any, ParentType extends ResolversParentTypes['Like'] = ResolversParentTypes['Like']> = {
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type MatterResolvers<ContextType = any, ParentType extends ResolversParentTypes['Matter'] = ResolversParentTypes['Matter']> = {
+  agendaDate?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  billWould?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  committeeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enactedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  enactmentNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fileNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  introducedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  lastModifiedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  likeCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  liked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  likes?: Resolver<Array<ResolversTypes['Like']>, ParentType, ContextType>;
+  longDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nycLegislatureGuid?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  passedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  shortDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['MatterStatus'], ParentType, ContextType>;
+  typeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -244,23 +223,15 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  bills?: Resolver<Array<ResolversTypes['Bill']>, ParentType, ContextType>;
-};
-
-export type StatusResolvers<ContextType = any, ParentType extends ResolversParentTypes['Status'] = ResolversParentTypes['Status']> = {
-  actionDate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  actionName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+  matters?: Resolver<Array<ResolversTypes['Matter']>, ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = any> = {
-  Bill?: BillResolvers<ContextType>;
-  Category?: CategoryResolvers<ContextType>;
   CreateLikeResponse?: CreateLikeResponseResolvers<ContextType>;
+  Date?: GraphQLScalarType;
   Like?: LikeResolvers<ContextType>;
+  Matter?: MatterResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
-  Status?: StatusResolvers<ContextType>;
 };
 
