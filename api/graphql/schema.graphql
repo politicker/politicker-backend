@@ -31,6 +31,19 @@ type Bill {
   categories: [Category!]!
 }
 
+fragment DisplayableBill on Bill {
+  id
+  liked
+  likeCount
+  number
+  categories
+  shortTitle
+  sponsorName
+  sponsorState
+  sponsorParty
+  summary
+}
+
 type Category {
   id: ID!
   name: String!
@@ -59,5 +72,5 @@ type Query {
 }
 
 type Mutation {
-  createLike(input: CreateLikeInput): CreateLikeResponse
+  createLike(input: CreateLikeInput!): CreateLikeResponse!
 }

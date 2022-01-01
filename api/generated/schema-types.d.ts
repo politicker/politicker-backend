@@ -70,12 +70,12 @@ export type Like = {
 
 export type Mutation = {
   __typename?: 'Mutation';
-  createLike?: Maybe<CreateLikeResponse>;
+  createLike: CreateLikeResponse;
 };
 
 
 export type MutationCreateLikeArgs = {
-  input?: InputMaybe<CreateLikeInput>;
+  input: CreateLikeInput;
 };
 
 export type Query = {
@@ -240,7 +240,7 @@ export type LikeResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  createLike?: Resolver<Maybe<ResolversTypes['CreateLikeResponse']>, ParentType, ContextType, RequireFields<MutationCreateLikeArgs, never>>;
+  createLike?: Resolver<ResolversTypes['CreateLikeResponse'], ParentType, ContextType, RequireFields<MutationCreateLikeArgs, 'input'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
