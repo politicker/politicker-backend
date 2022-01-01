@@ -113,6 +113,41 @@ CREATE TABLE IF NOT EXISTS nyc_council_raw_data_diff(
     MatterRestrictViewViaWeb BOOLEAN
 );
 
+CREATE TYPE public.agenda_status AS ENUM (
+		'Enacted',
+    'Committee',
+    'Withdrawn',
+		'Approved',
+    'Disapproved',
+		'Failed',
+		'Adopted',
+		'Special',
+		'Local',
+		'Hearing',
+		'Filed',
+		'General', -- orders calendar
+		'Received'
+);
+
+CREATE TABLE IF NOT EXISTS public.nyc_council_matters (
+	id serial primary key,
+	short_description text,
+	long_description text,
+	bill_would text, -- give this a better name
+	file_number varchar,
+	type_name varchar,
+	status agenda_status,
+	committee_name text,
+	last_modified_at timestamp,
+	introduced_at date,
+	passed_at date,
+	enacted_at date,
+	agenda_date date,
+	enactment_number varchar,
+	nyc_legislature_guid text,
+	updated_at timestamp
+);
+
 CREATE OR REPLACE FUNCTION store_row_diff_on_change()
 RETURNS trigger
 AS $$ begin
@@ -187,5 +222,47 @@ CREATE TRIGGER store_row_diff_on_change_trigger
 CREATE TRIGGER store_row_diff_on_change_trigger_on_create
     BEFORE INSERT ON nyc_council_raw_data FOR EACH ROW
     EXECUTE FUNCTION store_row_diff_on_change();
+
+CREATE OR REPLACE FUNCTION clean_data()
+RETURNS trigger
+AS $$ begin
+	INSERT INTO nyc_council_matters (
+		short_description,
+		long_description,
+		bill_would,
+		file_number,
+		type_name,
+		status,
+		committee_name,
+		last_modified_at,
+		introduced_at,
+		passed_at,
+		enacted_at,
+		agenda_date,
+		enactment_number,
+		nyc_legislature_guid
+	) VALUES (
+			NEW.mattername,
+			NEW.mattertitle,
+			NEW.mattertext5,
+			NEW.matterfile,
+			NEW.mattertypename,
+			REGEXP_REPLACE(NEW.matterstatusname, '^(\w+)(.*)', '\1')::agenda_status, -- TODO: 'General Orders Calendar' gets imported as 'General' because I'm bad at regex
+			NEW.matterbodyname,
+			CASE WHEN NEW.matterlastmodifiedutc = '' THEN NULL ELSE NEW.matterlastmodifiedutc::timestamp END,
+			CASE WHEN NEW.matterintrodate = '' THEN NULL ELSE NEW.matterintrodate::date END,
+			CASE WHEN NEW.matterpasseddate = '' THEN NULL ELSE NEW.matterpasseddate::date END,
+			CASE WHEN NEW.matterenactmentdate = '' THEN NULL ELSE NEW.matterenactmentdate::date END,
+			CASE WHEN NEW.matteragendadate = '' THEN NULL ELSE NEW.matteragendadate::date END,
+			NEW.matterenactmentnumber,
+			NEW.matterguid
+	);
+	RETURN NULL;
+end;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER clean_raw_data_after_import
+	AFTER INSERT ON nyc_council_raw_data_diff FOR EACH ROW
+	EXECUTE FUNCTION clean_data();
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO politicker;
