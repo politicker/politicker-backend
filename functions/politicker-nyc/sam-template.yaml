@@ -1,0 +1,10 @@
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  main:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: go1.x
+      Handler: main
+      Environment:
+        Variables:
+          NYC_TOKEN: n/a

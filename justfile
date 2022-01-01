@@ -51,3 +51,18 @@ deploy:
 	TASK_DEFINITION=$(aws ecs describe-task-definition --task-definition politicker-graphql-api --region us-east-2)
 
 	echo $TASK_DEFINITION | jq
+
+run-nyc:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+
+	cd functions/politicker-nyc
+	docker run -v $(pwd):/app --rm golang sh -c 'cd /app && go build main.go'
+	sam local invoke -t sam-template.yaml --env-vars ../../.env.json
+
+runl:
+	#!/usr/bin/env bash
+	set -euxo pipefail
+
+	cd functions/politicker-nyc
+	go run main.go
