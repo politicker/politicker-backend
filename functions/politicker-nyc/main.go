@@ -137,153 +137,168 @@ func init() {
 
 // Handler handles pub subs
 func handler(ctx context.Context) error {
-	log.Println(token)
-	url := fmt.Sprintf("https://webapi.legistar.com/v1/nyc/matters?$top=500&$orderby=MatterAgendaDate%%20desc&token=%s", token)
-
-	log.Println(url)
-
-	resp := []Matter{}
-	err := fetchJSON(url, &resp)
-	if err != nil {
-		log.Println("failed to fetch json from Legistar ", err)
-		return err
-	}
-
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	db, err := createDBClient(ctx)
+
 	if err != nil {
 		log.Println("failed to create db client ", err)
 		return err
 	}
 
-	log.Println(db)
-
-	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-
-	builder := psql.
-		Insert("nyc_council_raw_data").
-		Columns(
-			"MatterID",
-			"MatterGUID",
-			"MatterLastModifiedUtc",
-			"MatterRowVersion",
-			"MatterFile",
-			"MatterName",
-			"MatterTitle",
-			"MatterTypeID",
-			"MatterTypeName",
-			"MatterStatusID",
-			"MatterStatusName",
-			"MatterBodyID",
-			"MatterBodyName",
-			"MatterIntroDate",
-			"MatterAgendaDate",
-			"MatterPassedDate",
-			"MatterEnactmentDate",
-			"MatterEnactmentNumber",
-			"MatterRequester",
-			"MatterNotes",
-			"MatterVersion",
-			"MatterText1",
-			"MatterText2",
-			"MatterText3",
-			"MatterText4",
-			"MatterText5",
-			"MatterDate1",
-			"MatterDate2",
-			"MatterEXText1",
-			"MatterEXText2",
-			"MatterEXText3",
-			"MatterEXText4",
-			"MatterEXText5",
-			"MatterEXText6",
-			"MatterEXText7",
-			"MatterEXText8",
-			"MatterEXText9",
-			"MatterEXText10",
-			"MatterEXText11",
-			"MatterEXDate1",
-			"MatterEXDate2",
-			"MatterEXDate3",
-			"MatterEXDate4",
-			"MatterEXDate5",
-			"MatterEXDate6",
-			"MatterEXDate7",
-			"MatterEXDate8",
-			"MatterEXDate9",
-			"MatterEXDate10",
-			"MatterAgiloftID",
-			"MatterReference",
-			"MatterRestrictViewViaWeb",
+	db.Exec(`
+		CREATE TABLE IF NOT EXISTS import_cursors(
+			key text not null PRIMARY KEY
+			value integer
 		)
+	`)
 
-	for _, matter := range resp {
-		// log.Println(resp.MatterName)
-		builder = builder.Values(
-			matter.MatterID,
-			matter.MatterGUID,
-			matter.MatterLastModifiedUtc,
-			matter.MatterRowVersion,
-			matter.MatterFile,
-			matter.MatterName,
-			matter.MatterTitle,
-			matter.MatterTypeID,
-			matter.MatterTypeName,
-			matter.MatterStatusID,
-			matter.MatterStatusName,
-			matter.MatterBodyID,
-			matter.MatterBodyName,
-			matter.MatterIntroDate,
-			matter.MatterAgendaDate,
-			matter.MatterPassedDate,
-			matter.MatterEnactmentDate,
-			matter.MatterEnactmentNumber,
-			matter.MatterRequester,
-			matter.MatterNotes,
-			matter.MatterVersion,
-			matter.MatterText1,
-			matter.MatterText2,
-			matter.MatterText3,
-			matter.MatterText4,
-			matter.MatterText5,
-			matter.MatterDate1,
-			matter.MatterDate2,
-			matter.MatterEXText1,
-			matter.MatterEXText2,
-			matter.MatterEXText3,
-			matter.MatterEXText4,
-			matter.MatterEXText5,
-			matter.MatterEXText6,
-			matter.MatterEXText7,
-			matter.MatterEXText8,
-			matter.MatterEXText9,
-			matter.MatterEXText10,
-			matter.MatterEXText11,
-			matter.MatterEXDate1,
-			matter.MatterEXDate2,
-			matter.MatterEXDate3,
-			matter.MatterEXDate4,
-			matter.MatterEXDate5,
-			matter.MatterEXDate6,
-			matter.MatterEXDate7,
-			matter.MatterEXDate8,
-			matter.MatterEXDate9,
-			matter.MatterEXDate10,
-			matter.MatterAgiloftID,
-			matter.MatterReference,
-			matter.MatterRestrictViewViaWeb,
-		)
-	}
-
-	sql, args, err := builder.ToSql()
+	rows, err := db.Query(`SELECT COALESCE(value FROM import_cursors WHERE key = 'nyc_council_offset' LIMIT 1), 0)`)
 	if err != nil {
-		log.Println("failed to build sql prepared statement ", err)
 		return err
 	}
 
-	if _, err := db.Exec(sql, args...); err != nil {
-		log.Println("failed to execute query ", err)
-		return err
+	log.Println(rows)
+
+	for {
+		url := fmt.Sprintf("https://webapi.legistar.com/v1/nyc/matters?$skip=%d&$top=%d&token=%s", offset, limit, token)
+		log.Println(url)
+		resp := []Matter{}
+		err := fetchJSON(url, &resp)
+		if err != nil {
+			log.Println("failed to fetch json from Legistar ", err)
+			return err
+		}
+
+		log.Println("items in response ", len(resp))
 	}
+
+	// log.Println(db)
+
+	// builder := psql.
+	// 	Insert("nyc_council_raw_data").
+	// 	Columns(
+	// 		"MatterID",
+	// 		"MatterGUID",
+	// 		"MatterLastModifiedUtc",
+	// 		"MatterRowVersion",
+	// 		"MatterFile",
+	// 		"MatterName",
+	// 		"MatterTitle",
+	// 		"MatterTypeID",
+	// 		"MatterTypeName",
+	// 		"MatterStatusID",
+	// 		"MatterStatusName",
+	// 		"MatterBodyID",
+	// 		"MatterBodyName",
+	// 		"MatterIntroDate",
+	// 		"MatterAgendaDate",
+	// 		"MatterPassedDate",
+	// 		"MatterEnactmentDate",
+	// 		"MatterEnactmentNumber",
+	// 		"MatterRequester",
+	// 		"MatterNotes",
+	// 		"MatterVersion",
+	// 		"MatterText1",
+	// 		"MatterText2",
+	// 		"MatterText3",
+	// 		"MatterText4",
+	// 		"MatterText5",
+	// 		"MatterDate1",
+	// 		"MatterDate2",
+	// 		"MatterEXText1",
+	// 		"MatterEXText2",
+	// 		"MatterEXText3",
+	// 		"MatterEXText4",
+	// 		"MatterEXText5",
+	// 		"MatterEXText6",
+	// 		"MatterEXText7",
+	// 		"MatterEXText8",
+	// 		"MatterEXText9",
+	// 		"MatterEXText10",
+	// 		"MatterEXText11",
+	// 		"MatterEXDate1",
+	// 		"MatterEXDate2",
+	// 		"MatterEXDate3",
+	// 		"MatterEXDate4",
+	// 		"MatterEXDate5",
+	// 		"MatterEXDate6",
+	// 		"MatterEXDate7",
+	// 		"MatterEXDate8",
+	// 		"MatterEXDate9",
+	// 		"MatterEXDate10",
+	// 		"MatterAgiloftID",
+	// 		"MatterReference",
+	// 		"MatterRestrictViewViaWeb",
+	// 	)
+
+	// for _, matter := range resp {
+	// 	// log.Println(resp.MatterName)
+	// 	builder = builder.Values(
+	// 		matter.MatterID,
+	// 		matter.MatterGUID,
+	// 		matter.MatterLastModifiedUtc,
+	// 		matter.MatterRowVersion,
+	// 		matter.MatterFile,
+	// 		matter.MatterName,
+	// 		matter.MatterTitle,
+	// 		matter.MatterTypeID,
+	// 		matter.MatterTypeName,
+	// 		matter.MatterStatusID,
+	// 		matter.MatterStatusName,
+	// 		matter.MatterBodyID,
+	// 		matter.MatterBodyName,
+	// 		matter.MatterIntroDate,
+	// 		matter.MatterAgendaDate,
+	// 		matter.MatterPassedDate,
+	// 		matter.MatterEnactmentDate,
+	// 		matter.MatterEnactmentNumber,
+	// 		matter.MatterRequester,
+	// 		matter.MatterNotes,
+	// 		matter.MatterVersion,
+	// 		matter.MatterText1,
+	// 		matter.MatterText2,
+	// 		matter.MatterText3,
+	// 		matter.MatterText4,
+	// 		matter.MatterText5,
+	// 		matter.MatterDate1,
+	// 		matter.MatterDate2,
+	// 		matter.MatterEXText1,
+	// 		matter.MatterEXText2,
+	// 		matter.MatterEXText3,
+	// 		matter.MatterEXText4,
+	// 		matter.MatterEXText5,
+	// 		matter.MatterEXText6,
+	// 		matter.MatterEXText7,
+	// 		matter.MatterEXText8,
+	// 		matter.MatterEXText9,
+	// 		matter.MatterEXText10,
+	// 		matter.MatterEXText11,
+	// 		matter.MatterEXDate1,
+	// 		matter.MatterEXDate2,
+	// 		matter.MatterEXDate3,
+	// 		matter.MatterEXDate4,
+	// 		matter.MatterEXDate5,
+	// 		matter.MatterEXDate6,
+	// 		matter.MatterEXDate7,
+	// 		matter.MatterEXDate8,
+	// 		matter.MatterEXDate9,
+	// 		matter.MatterEXDate10,
+	// 		matter.MatterAgiloftID,
+	// 		matter.MatterReference,
+	// 		matter.MatterRestrictViewViaWeb,
+	// 	)
+	// }
+
+	// sql, args, err := builder.ToSql()
+	// if err != nil {
+	// 	log.Println("failed to build sql prepared statement ", err)
+	// 	return err
+	// }
+
+	// if _, err := db.Exec(sql, args...); err != nil {
+	// 	log.Println("failed to execute query ", err)
+	// 	return err
+	// }
 
 	return nil
 }
