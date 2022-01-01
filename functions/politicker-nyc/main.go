@@ -10,7 +10,9 @@ import (
 	"net/http"
 	"os"
 
-	sq "github.com/Masterminds/squirrel"
+	"github.com/pkg/errors"
+
+	// sq "github.com/Masterminds/squirrel"
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
@@ -137,42 +139,86 @@ func init() {
 
 // Handler handles pub subs
 func handler(ctx context.Context) error {
-	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	db, err := createDBClient(ctx)
 
 	if err != nil {
-		log.Println("failed to create db client ", err)
-		return err
+		return errors.Wrap(err, "failed to create db client")
 	}
 
-	db.Exec(`
+	if _, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS import_cursors(
-			key text not null PRIMARY KEY
+			key text not null PRIMARY KEY,
 			value integer
 		)
-	`)
-
-	rows, err := db.Query(`SELECT COALESCE(value FROM import_cursors WHERE key = 'nyc_council_offset' LIMIT 1), 0)`)
-	if err != nil {
-		return err
+	`); err != nil {
+		return errors.Wrap(err, "failed to create import_cursors table")
 	}
 
-	log.Println(rows)
+	rows, err := db.Query(`SELECT COALESCE((SELECT value FROM import_cursors WHERE key = 'nyc_council_offset' LIMIT 1), 0)`)
+	if err != nil {
+		return errors.Wrap(err, "failed to get current offset")
+	}
+
+	limit := 500
+	offset := 0
+
+	rows.Next()
+
+	// if err := rows.Scan(&offset); err != nil {
+	// 	return errors.Wrap(err, "failed to scan")
+	// }
+
+	// if err := rows.Close(); err != nil {
+	// 	return errors.Wrap(err, "failed to close query")
+	// }
 
 	for {
 		url := fmt.Sprintf("https://webapi.legistar.com/v1/nyc/matters?$skip=%d&$top=%d&token=%s", offset, limit, token)
 		log.Println(url)
 		resp := []Matter{}
+
 		err := fetchJSON(url, &resp)
 		if err != nil {
-			log.Println("failed to fetch json from Legistar ", err)
-			return err
+			return errors.Wrap(err, "failed to fetch json from Legistar")
 		}
 
 		log.Println("items in response ", len(resp))
+
+		if len(resp) == 0 {
+			break
+		}
+
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			return errors.Wrap(err, "failed to begin tx")
+		}
+
+		if err := insertRows(resp, tx); err != nil {
+			return errors.Wrap(err, "failed to insert rows")
+		}
+
+		offset = offset + limit
+
+		// if _, err := tx.Exec(`
+		// 	INSERT INTO import_cursors (key, value)
+		// 	VALUES('nyc_council_offset', $1)
+		// 	ON CONFLICT (key)
+		// 	DO
+		// 		UPDATE SET value = $1;
+		// `, offset); err != nil {
+		// 	return errors.Wrap(err, "failed to save current offset")
+		// }
+
+		if err = tx.Commit(); err != nil {
+			return errors.Wrap(err, "failed to commit tx")
+		}
 	}
 
-	// log.Println(db)
+	return nil
+}
+
+func insertRows(resp []Matter, tx *sql.Tx) error {
+	// psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 	// builder := psql.
 	// 	Insert("nyc_council_raw_data").
@@ -231,63 +277,175 @@ func handler(ctx context.Context) error {
 	// 		"MatterRestrictViewViaWeb",
 	// 	)
 
-	// for _, matter := range resp {
-	// 	// log.Println(resp.MatterName)
-	// 	builder = builder.Values(
-	// 		matter.MatterID,
-	// 		matter.MatterGUID,
-	// 		matter.MatterLastModifiedUtc,
-	// 		matter.MatterRowVersion,
-	// 		matter.MatterFile,
-	// 		matter.MatterName,
-	// 		matter.MatterTitle,
-	// 		matter.MatterTypeID,
-	// 		matter.MatterTypeName,
-	// 		matter.MatterStatusID,
-	// 		matter.MatterStatusName,
-	// 		matter.MatterBodyID,
-	// 		matter.MatterBodyName,
-	// 		matter.MatterIntroDate,
-	// 		matter.MatterAgendaDate,
-	// 		matter.MatterPassedDate,
-	// 		matter.MatterEnactmentDate,
-	// 		matter.MatterEnactmentNumber,
-	// 		matter.MatterRequester,
-	// 		matter.MatterNotes,
-	// 		matter.MatterVersion,
-	// 		matter.MatterText1,
-	// 		matter.MatterText2,
-	// 		matter.MatterText3,
-	// 		matter.MatterText4,
-	// 		matter.MatterText5,
-	// 		matter.MatterDate1,
-	// 		matter.MatterDate2,
-	// 		matter.MatterEXText1,
-	// 		matter.MatterEXText2,
-	// 		matter.MatterEXText3,
-	// 		matter.MatterEXText4,
-	// 		matter.MatterEXText5,
-	// 		matter.MatterEXText6,
-	// 		matter.MatterEXText7,
-	// 		matter.MatterEXText8,
-	// 		matter.MatterEXText9,
-	// 		matter.MatterEXText10,
-	// 		matter.MatterEXText11,
-	// 		matter.MatterEXDate1,
-	// 		matter.MatterEXDate2,
-	// 		matter.MatterEXDate3,
-	// 		matter.MatterEXDate4,
-	// 		matter.MatterEXDate5,
-	// 		matter.MatterEXDate6,
-	// 		matter.MatterEXDate7,
-	// 		matter.MatterEXDate8,
-	// 		matter.MatterEXDate9,
-	// 		matter.MatterEXDate10,
-	// 		matter.MatterAgiloftID,
-	// 		matter.MatterReference,
-	// 		matter.MatterRestrictViewViaWeb,
-	// 	)
-	// }
+	for _, matter := range resp {
+		log.Println(matter.MatterGUID)
+
+		if _, err := tx.Exec(`
+			INSERT INTO nyc_council_raw_data VALUES(
+				$1,
+				$2,
+				$3,
+				$4,
+				$5,
+				$6,
+				$7,
+				$8,
+				$9,
+				$10,
+				$11,
+				$12,
+				$13,
+				$14,
+				$15,
+				$16,
+				$17,
+				$18,
+				$19,
+				$20,
+				$21,
+				$22,
+				$23,
+				$24,
+				$25,
+				$26,
+				$27,
+				$28,
+				$29,
+				$30,
+				$31,
+				$32,
+				$33,
+				$34,
+				$35,
+				$36,
+				$37,
+				$38,
+				$39,
+				$40,
+				$41,
+				$42,
+				$43,
+				$44,
+				$45,
+				$46,
+				$47,
+				$48,
+				$49,
+				$50,
+				$51,
+				$52
+			)
+			ON CONFLICT (MatterGUID) DO
+			UPDATE SET
+				MatterID = $1,
+				MatterGUID = $2,
+				MatterLastModifiedUtc = $3,
+				MatterRowVersion = $4,
+				MatterFile = $5,
+				MatterName = $6,
+				MatterTitle = $7,
+				MatterTypeID = $8,
+				MatterTypeName = $9,
+				MatterStatusID = $10,
+				MatterStatusName = $11,
+				MatterBodyID = $12,
+				MatterBodyName = $13,
+				MatterIntroDate = $14,
+				MatterAgendaDate = $15,
+				MatterPassedDate = $16,
+				MatterEnactmentDate = $17,
+				MatterEnactmentNumber = $18,
+				MatterRequester = $19,
+				MatterNotes = $20,
+				MatterVersion = $21,
+				MatterText1 = $22,
+				MatterText2 = $23,
+				MatterText3 = $24,
+				MatterText4 = $25,
+				MatterText5 = $26,
+				MatterDate1 = $27,
+				MatterDate2 = $28,
+				MatterEXText1 = $29,
+				MatterEXText2 = $30,
+				MatterEXText3 = $31,
+				MatterEXText4 = $32,
+				MatterEXText5 = $33,
+				MatterEXText6 = $34,
+				MatterEXText7 = $35,
+				MatterEXText8 = $36,
+				MatterEXText9 = $37,
+				MatterEXText10 = $38,
+				MatterEXText11 = $39,
+				MatterEXDate1 = $40,
+				MatterEXDate2 = $41,
+				MatterEXDate3 = $42,
+				MatterEXDate4 = $43,
+				MatterEXDate5 = $44,
+				MatterEXDate6 = $45,
+				MatterEXDate7 = $46,
+				MatterEXDate8 = $47,
+				MatterEXDate9 = $48,
+				MatterEXDate10 = $49,
+				MatterAgiloftID = $50,
+				MatterReference = $51,
+				MatterRestrictViewViaWeb = $52;
+		`,
+			matter.MatterID,
+			matter.MatterGUID,
+			matter.MatterLastModifiedUtc,
+			matter.MatterRowVersion,
+			matter.MatterFile,
+			matter.MatterName,
+			matter.MatterTitle,
+			matter.MatterTypeID,
+			matter.MatterTypeName,
+			matter.MatterStatusID,
+			matter.MatterStatusName,
+			matter.MatterBodyID,
+			matter.MatterBodyName,
+			matter.MatterIntroDate,
+			matter.MatterAgendaDate,
+			matter.MatterPassedDate,
+			matter.MatterEnactmentDate,
+			matter.MatterEnactmentNumber,
+			matter.MatterRequester,
+			matter.MatterNotes,
+			matter.MatterVersion,
+			matter.MatterText1,
+			matter.MatterText2,
+			matter.MatterText3,
+			matter.MatterText4,
+			matter.MatterText5,
+			matter.MatterDate1,
+			matter.MatterDate2,
+			matter.MatterEXText1,
+			matter.MatterEXText2,
+			matter.MatterEXText3,
+			matter.MatterEXText4,
+			matter.MatterEXText5,
+			matter.MatterEXText6,
+			matter.MatterEXText7,
+			matter.MatterEXText8,
+			matter.MatterEXText9,
+			matter.MatterEXText10,
+			matter.MatterEXText11,
+			matter.MatterEXDate1,
+			matter.MatterEXDate2,
+			matter.MatterEXDate3,
+			matter.MatterEXDate4,
+			matter.MatterEXDate5,
+			matter.MatterEXDate6,
+			matter.MatterEXDate7,
+			matter.MatterEXDate8,
+			matter.MatterEXDate9,
+			matter.MatterEXDate10,
+			matter.MatterAgiloftID,
+			matter.MatterReference,
+			matter.MatterRestrictViewViaWeb,
+		); err != nil {
+			return errors.Wrap(err, "failed to insert row")
+		}
+	}
 
 	// sql, args, err := builder.ToSql()
 	// if err != nil {
@@ -295,7 +453,7 @@ func handler(ctx context.Context) error {
 	// 	return err
 	// }
 
-	// if _, err := db.Exec(sql, args...); err != nil {
+	// if _, err := tx.Exec(sql, args...); err != nil {
 	// 	log.Println("failed to execute query ", err)
 	// 	return err
 	// }
@@ -345,5 +503,7 @@ func main() {
 	// Make the handler available for Remote Procedure Call by AWS Lambda
 	// lambda.Start(handler)
 	ctx := context.Background()
-	handler(ctx)
+	if err := handler(ctx); err != nil {
+		log.Println(err)
+	}
 }
