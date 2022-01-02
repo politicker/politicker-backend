@@ -24,14 +24,14 @@
 #    See the documentation for each action used below for the recommended IAM policies for this IAM user,
 #    and best practices on handling the access key credentials.
 
-name: Deploy to Amazon ECS
+name: Deploy NYC Data Feed Function
 
 on:
   push:
     branches:
       - main
-#     paths:
-#       - 'functions/**'
+    paths:
+      - 'functions/politicker-nyc'
 
 jobs:
   deploy:
@@ -40,7 +40,7 @@ jobs:
     environment: production
     defaults:
       run:
-        working-directory: ./functions/propublica
+        working-directory: ./functions/politicker-nyc
 
     steps:
     - name: Checkout

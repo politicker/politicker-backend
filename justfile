@@ -66,3 +66,6 @@ runl:
 
 	cd functions/politicker-nyc
 	go run main.go
+
+pw:
+	jq -r '.values.root_module.resources[] | select(.address | contains("password")) | .values.result'

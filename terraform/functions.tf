@@ -1,8 +1,9 @@
 locals {
   functions = toset([
-    "import-feeds",
-    "parse-and-store-feeds",
-    "propublica"
+    # "import-feeds",
+    # "parse-and-store-feeds",
+    # "propublica",
+    "politicker-nyc"
   ])
 
   policies = toset([

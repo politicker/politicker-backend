@@ -265,4 +265,4 @@ CREATE TRIGGER clean_raw_data_after_import
 	AFTER INSERT ON nyc_council_raw_data_diff FOR EACH ROW
 	EXECUTE FUNCTION clean_data();
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO politicker;
+-- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO politicker;
