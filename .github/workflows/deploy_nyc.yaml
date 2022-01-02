@@ -31,6 +31,7 @@ on:
     branches:
       - main
     paths:
+      - .github/workflows/deploy_nyc.yaml
       - functions/politicker-nyc/**
 
 jobs:
