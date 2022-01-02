@@ -31,7 +31,7 @@ on:
     branches:
       - main
     paths:
-      - 'functions/politicker-nyc'
+      - functions/politicker-nyc/**
 
 jobs:
   deploy:

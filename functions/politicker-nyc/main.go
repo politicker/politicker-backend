@@ -139,7 +139,7 @@ func init() {
 
 // Handler handles pub subs
 func handler(ctx context.Context) error {
-	log.Println("starting function handler")
+	log.Println("starting function handler...")
 
 	db, err := createDBClient(ctx)
 	if err != nil {
