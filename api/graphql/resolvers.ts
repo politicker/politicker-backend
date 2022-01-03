@@ -11,9 +11,36 @@ const resolvers: Resolvers = {
 				throw new Error('failed to fetch rows')
 			}
 
-			return rows
-		}
+			return rows.map(r => ({
+				...r,
+				shortDescription: r.shortDescription || '',
+				longDescription: r.longDescription || '',
+				billWould: r.billWould || '',
+				fileNumber: r.fileNumber || '',
+				typeName: r.typeName || '',
+				status: MatterStatus.General,
+				committeeName: r.committeeName || '',
+				lastModifiedAt: r.lastModifiedAt || '',
+				introducedAt: r.introducedAt || '',
+				passedAt: r.passedAt || '',
+				enactedAt: r.enactedAt || '',
+				agendaDate: r.agendaDate || '',
+				enactmentNumber: r.enactmentNumber || '',
+				nycLegislatureGuid: r.nycLegislatureGuid || '',
+				updatedAt: r.updatedAt || '',
+				likeCount: 0,
+				liked: false,
+			}))
+		},
 	},
+
+	// Matter: {
+	// 	async likes(parent): Promise<Like[]> {
+	// 		const rows = await knex<Matter>('likes').where().orderBy('agenda_date').limit(100)
+
+	// 		return []
+	// 	}
+	// },
 
 	Mutation: {
 		createLike(_: {}, args: MutationCreateLikeArgs): CreateLikeResponse {
