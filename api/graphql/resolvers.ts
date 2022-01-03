@@ -29,7 +29,7 @@ const resolvers: Resolvers = {
 				billWould: r.billWould || '',
 				fileNumber: r.fileNumber || '',
 				typeName: r.typeName || '',
-				status: MatterStatus.General,
+				status: r.status.toUpperCase() as MatterStatus,
 				committeeName: r.committeeName || '',
 				lastModifiedAt: r.lastModifiedAt || '',
 				introducedAt: r.introducedAt || '',
