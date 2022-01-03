@@ -1,3 +1,4 @@
+import { toCamel } from 'snake-camel'
 import knex from '../db'
 import type { MutationCreateLikeArgs, CreateLikeResponse, Resolvers, Matter } from '../generated/schema-types'
 import { MatterStatus } from '../generated/schema-types'
@@ -11,7 +12,9 @@ const resolvers: Resolvers = {
 				throw new Error('failed to fetch rows')
 			}
 
-			return rows.map(r => ({
+			console.log(rows)
+
+			return rows.map(r => toCamel(r) as Matter).map(r => ({
 				...r,
 				shortDescription: r.shortDescription || '',
 				longDescription: r.longDescription || '',
