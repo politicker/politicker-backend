@@ -131,20 +131,20 @@ CREATE TYPE public.agenda_status AS ENUM (
 
 CREATE TABLE IF NOT EXISTS public.nyc_council_matters (
 	id serial primary key,
-	short_description text,
-	long_description text,
-	bill_would text, -- give this a better name
-	file_number varchar,
-	type_name varchar,
-	status agenda_status,
-	committee_name text,
+	short_description text NOT NULL,
+	long_description text NOT NULL,
+	bill_would text NOT NULL, -- give this a better name
+	file_number varchar NOT NULL,
+	type_name varchar NOT NULL,
+	status agenda_status NOT NULL,
+	committee_name text NOT NULL,
 	last_modified_at timestamp,
 	introduced_at date,
 	passed_at date,
 	enacted_at date,
 	agenda_date date,
-	enactment_number varchar,
-	nyc_legislature_guid text,
+	enactment_number varchar NOT NULL,
+	nyc_legislature_guid text NOT NULL,
 	updated_at timestamp
 );
 
@@ -265,4 +265,4 @@ CREATE TRIGGER clean_raw_data_after_import
 	AFTER INSERT ON nyc_council_raw_data_diff FOR EACH ROW
 	EXECUTE FUNCTION clean_data();
 
--- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO politicker;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO politicker;

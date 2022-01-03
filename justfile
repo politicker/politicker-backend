@@ -69,3 +69,6 @@ runl:
 
 pw:
 	jq -r '.values.root_module.resources[] | select(.address | contains("password")) | .values.result'
+
+load:
+	PGPASSWORD=politicker psql -U politicker -h localhost politicker-development < functions/politicker-nyc/structure.sql
