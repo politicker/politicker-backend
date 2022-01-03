@@ -6,7 +6,15 @@ import { MatterStatus } from '../generated/schema-types'
 const resolvers: Resolvers = {
 	Query: {
 		async matters(): Promise<Matter[]> {
-			const rows = await knex<Matter>('nyc_council_matters').orderBy('agenda_date').limit(100)
+			const rows = await knex<Matter>('nyc_council_matters')
+				.select('*')
+				.select(knex.raw('greatest(enacted_at, passed_at, introduced_at, agenda_date) as max_action_date'))
+				.whereNotNull('enacted_at')
+				.orWhereNotNull('agenda_date')
+				.orWhereNotNull('passed_at')
+				.orWhereNotNull('introduced_at')
+				.orderBy('max_action_date', 'desc')
+				.limit(100)
 
 			if (!rows) {
 				throw new Error('failed to fetch rows')

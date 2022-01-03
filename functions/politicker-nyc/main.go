@@ -165,13 +165,13 @@ func handler(ctx context.Context) error {
 
 	rows.Next()
 
-	// if err := rows.Scan(&offset); err != nil {
-	// 	return errors.Wrap(err, "failed to scan")
-	// }
+	if err := rows.Scan(&offset); err != nil {
+		return errors.Wrap(err, "failed to scan")
+	}
 
-	// if err := rows.Close(); err != nil {
-	// 	return errors.Wrap(err, "failed to close query")
-	// }
+	if err := rows.Close(); err != nil {
+		return errors.Wrap(err, "failed to close query")
+	}
 
 	for {
 		url := fmt.Sprintf("https://webapi.legistar.com/v1/nyc/matters?$skip=%d&$top=%d&token=%s", offset, limit, token)
