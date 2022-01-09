@@ -1,105 +1,61 @@
-# type Bill {
-#   id: ID!
-#   active: Boolean!
-#   committeeCodes: [String]!
-#   committees: String!
-#   congressdotgovURL: String!
-#   cosponsors: Int!
-#   enacted: String!
-#   govtrackURL: String!
-#   gpoPdfURI: String!
-#   housePassage: String!
-#   introducedDate: String!
-#   latestMajorAction: String!
-#   latestMajorActionDate: String!
-#   number: String!
-#   primarySubject: String!
-#   senatePassage: String!
-#   shortTitle: String!
-#   sponsorID: String!
-#   sponsorName: String!
-#   sponsorParty: String!
-#   sponsorState: String!
-#   sponsorTitle: String!
-#   sponsorURI: String!
-#   subcommitteeCodes: [String]!
-#   summary: String!
-#   statuses: [Status!]!
-#   liked: Boolean!
-#   likes: [Like!]!
-#   likeCount: Int!
-#   categories: [Category!]!
-# }
-
-# type Category {
-#   id: ID!
-#   name: String!
-# }
-
-type Like {
-  id: ID!
-}
-
-# type Status {
-#   id: ID!
-#   actionDate: String!
-#   actionName: String!
-# }
-
-enum MatterStatus {
-  ENACTED
-  COMMITTEE
-  WITHDRAWN
-  APPROVED
-  DISAPPROVED
-  FAILED
-  ADOPTED
-  SPECIAL
-  LOCAL
-  HEARING
-  FILED
-  GENERAL
-  RECEIVED
-}
-
 scalar Date
 
-type Matter {
-  id: ID!
-  shortDescription: String!
-  longDescription: String!
-  billWould: String!
-  fileNumber: String!
-  typeName: String!
-  status: MatterStatus!
-  committeeName: String!
-  lastModifiedAt: Date!
-  introducedAt: Date!
-  passedAt: Date!
-  enactedAt: Date!
-  agendaDate: Date!
-  enactmentNumber: String!
-  nycLegislatureGuid: String!
-  updatedAt: Date!
+type Like {
+	id: ID!
+}
 
-  likes: [Like!]!
-  liked: Boolean!
-  likeCount: Int!
+enum MatterStatus {
+	ENACTED
+	COMMITTEE
+	WITHDRAWN
+	APPROVED
+	DISAPPROVED
+	FAILED
+	ADOPTED
+	SPECIAL
+	LOCAL
+	HEARING
+	FILED
+	GENERAL
+	RECEIVED
+}
+
+type Matter {
+	id: ID!
+	shortDescription: String!
+	longDescription: String!
+	billWould: String!
+	fileNumber: String!
+	typeName: String!
+	status: MatterStatus!
+	committeeName: String!
+	lastModifiedAt: Date!
+	introducedAt: Date!
+	passedAt: Date!
+	enactedAt: Date!
+	agendaDate: Date!
+	enactmentNumber: String!
+	nycLegislatureGuid: String!
+	updatedAt: Date!
+
+	likes: [Like!]!
+	liked: Boolean!
+	likeCount: Int!
 }
 
 input CreateLikeInput {
-  MatterID: ID!
+	MatterID: ID!
 }
 
 type CreateLikeResponse {
-  matter: Matter!
+	matter: Matter!
 }
 
 type Query {
-  # bills: [Bill!]!
-  matters: [Matter!]!
+	# bills: [Bill!]!
+	matters: [Matter!]!
 }
 
 type Mutation {
-  createLike(input: CreateLikeInput!): CreateLikeResponse!
+	createLike(input: CreateLikeInput!): CreateLikeResponse!
 }

@@ -18,16 +18,15 @@ app.get('/date', (_, res) => {
 })
 
 app.get('/health', (_, res) => {
-	res.status(200).send("OK")
+	res.status(200).send('OK')
 })
-
 ;(async () => {
 	const typeDefs = readFileSync('./graphql/schema.graphql').toString('utf-8')
 
 	const server = new ApolloServer({
 		typeDefs,
 		resolvers,
-		mocks: process.env.MOCK_GRAPHQL_SERVER === 'true'
+		mocks: process.env.MOCK_GRAPHQL_SERVER === 'true',
 	})
 
 	await server.start()
