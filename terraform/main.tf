@@ -18,3 +18,7 @@ provider "aws" {
     }
   }
 }
+
+output "env_file" {
+  value = "${aws_s3_bucket.politicker_secrets.arn}/production/politicker-api.env"
+}
