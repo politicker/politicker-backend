@@ -25,6 +25,12 @@ resource "aws_lambda_function" "functions" {
     subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id]
     security_group_ids = [aws_security_group.db_access.id, aws_security_group.egress_all.id]
   }
+
+  lifecycle {
+    ignore_changes = [
+      environment
+    ]
+  }
 }
 
 resource "aws_iam_role" "lambda" {
