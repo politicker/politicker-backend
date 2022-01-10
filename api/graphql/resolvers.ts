@@ -26,32 +26,39 @@ const resolvers: Resolvers = {
 				.orderBy('max_action_date', 'desc')
 				.limit(100)
 
+
 			if (!rows) {
 				throw new Error('failed to fetch rows')
 			}
 
 			return rows
 				.map((r) => toCamel(r) as Matter)
-				.map((r) => ({
-					...r,
-					shortDescription: r.shortDescription || '',
-					longDescription: r.longDescription || '',
-					billWould: r.billWould || '',
-					fileNumber: r.fileNumber || '',
-					typeName: r.typeName || '',
-					status: r.status.toUpperCase() as MatterStatus,
-					committeeName: r.committeeName || '',
-					lastModifiedAt: r.lastModifiedAt || '',
-					introducedAt: r.introducedAt || '',
-					passedAt: r.passedAt || '',
-					enactedAt: r.enactedAt || '',
-					agendaDate: r.agendaDate || '',
-					enactmentNumber: r.enactmentNumber || '',
-					nycLegislatureGuid: r.nycLegislatureGuid || '',
-					updatedAt: r.updatedAt || '',
-					likeCount: 0,
-					liked: false,
-				}))
+				.map((r) => {
+					const preferredDate = Math.max(r.passedAt, r.passedAt, r.introducedAt, r.agendaDate)
+					const postDate = new Date(preferredDate || r.updatedAt)
+
+					return {
+						...r,
+						shortDescription: r.shortDescription || '',
+						longDescription: r.longDescription || '',
+						billWould: r.billWould || '',
+						fileNumber: r.fileNumber || '',
+						typeName: r.typeName || '',
+						status: r.status.toUpperCase() as MatterStatus,
+						committeeName: r.committeeName || '',
+						lastModifiedAt: r.lastModifiedAt || '',
+						introducedAt: r.introducedAt || '',
+						passedAt: r.passedAt || '',
+						enactedAt: r.enactedAt || '',
+						agendaDate: r.agendaDate || '',
+						enactmentNumber: r.enactmentNumber || '',
+						nycLegislatureGuid: r.nycLegislatureGuid || '',
+						updatedAt: r.updatedAt || '',
+						postDate,
+						likeCount: 0,
+						liked: false,
+					}
+				})
 		},
 	},
 

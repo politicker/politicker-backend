@@ -31,12 +31,13 @@ type Matter {
 	committeeName: String!
 	lastModifiedAt: Date!
 	introducedAt: Date!
-	passedAt: Date!
-	enactedAt: Date!
-	agendaDate: Date!
+	passedAt: String!
+	enactedAt: String!
+	agendaDate: String!
 	enactmentNumber: String!
 	nycLegislatureGuid: String!
-	updatedAt: Date!
+	updatedAt: String!
+	postDate: Date!
 
 	likes: [Like!]!
 	liked: Boolean!
