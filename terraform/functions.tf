@@ -20,6 +20,7 @@ resource "aws_lambda_function" "functions" {
   handler       = "main"
   runtime       = "go1.x"
   filename      = "./main.zip"
+  timeout       = 300
 
   vpc_config {
     subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id]
