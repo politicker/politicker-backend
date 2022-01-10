@@ -3,6 +3,9 @@ set dotenv-load := true
 # terraform plan
 plan:
 	cd terraform && terraform plan
+tf *args:
+	cd terraform && terraform {{args}}
+
 
 # deploy a named lambda
 publish function:
@@ -72,3 +75,9 @@ pw:
 
 load:
 	PGPASSWORD=politicker psql -U politicker -h localhost politicker-development < functions/politicker-nyc/structure.sql
+
+get-env:
+	aws s3 cp s3://politicker-secrets/production/politicker-api.env ./
+
+put-env:
+	aws s3 cp ./politicker-api.env s3://politicker-secrets/production/politicker-api.env

@@ -11,6 +11,12 @@
       "name": "graphql-api",
       "image": "N/A",
       "cpu": 0,
+      "environmentFiles": [
+        {
+          "type": "s3",
+          "value": "arn:aws:s3:::politicker-secrets/production/politicker-api.env"
+        }
+      ],
       "portMappings": [
         {
           "containerPort": 8000,
