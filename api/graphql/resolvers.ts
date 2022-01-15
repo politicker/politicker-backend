@@ -1,8 +1,7 @@
 import { toCamel } from 'snake-camel'
 import knex from '../db'
 import type {
-	MutationCreateLikeArgs,
-	CreateLikeResponse,
+	QueryMatterArgs,
 	Resolvers,
 	Matter,
 } from '../generated/schema-types'
@@ -26,80 +25,53 @@ const resolvers: Resolvers = {
 				.orderBy('max_action_date', 'desc')
 				.limit(100)
 
-
 			if (!rows) {
 				throw new Error('failed to fetch rows')
 			}
 
-			return rows
-				.map((r) => toCamel(r) as Matter)
-				.map((r) => {
-					const preferredDate = Math.max(r.passedAt, r.passedAt, r.introducedAt, r.agendaDate)
-					const postDate = new Date(preferredDate || r.updatedAt)
-
-					return {
-						...r,
-						shortDescription: r.shortDescription || '',
-						longDescription: r.longDescription || '',
-						billWould: r.billWould || '',
-						fileNumber: r.fileNumber || '',
-						typeName: r.typeName || '',
-						status: r.status.toUpperCase() as MatterStatus,
-						committeeName: r.committeeName || '',
-						lastModifiedAt: r.lastModifiedAt || '',
-						introducedAt: r.introducedAt || '',
-						passedAt: r.passedAt || '',
-						enactedAt: r.enactedAt || '',
-						agendaDate: r.agendaDate || '',
-						enactmentNumber: r.enactmentNumber || '',
-						nycLegislatureGuid: r.nycLegislatureGuid || '',
-						updatedAt: r.updatedAt || '',
-						postDate,
-						likeCount: 0,
-						liked: false,
-					}
+			return rows.map((r) => toCamel(r) as Matter)
+		},
+		async matter(_: {}, args: QueryMatterArgs): Promise<Matter> {
+			let matter = await knex<Matter>('nyc_council_matters')
+				.where({
+					id: args.id,
 				})
-		},
-	},
+				.first()
 
-	// Matter: {
-	// 	async likes(parent): Promise<Like[]> {
-	// 		const rows = await knex<Matter>('likes').where().orderBy('agenda_date').limit(100)
-
-	// 		return []
-	// 	}
-	// },
-
-	Mutation: {
-		createLike(_: {}, args: MutationCreateLikeArgs): CreateLikeResponse {
-			console.log(args.input)
-
-			return {
-				matter: {
-					id: args.input.MatterID,
-					shortDescription: '',
-					longDescription: '',
-					billWould: '',
-					fileNumber: '',
-					typeName: '',
-					status: MatterStatus.General,
-					committeeName: '',
-					lastModifiedAt: '',
-					introducedAt: '',
-					passedAt: '',
-					enactedAt: '',
-					agendaDate: '',
-					enactmentNumber: '',
-					nycLegislatureGuid: '',
-					updatedAt: '',
-					liked: true,
-					likes: [],
-					likeCount: 420,
-				},
+			if (!matter) {
+				throw new Error(`matter ${args.id} not found`)
 			}
+
+			matter = toCamel(matter) as Matter
+			matter.status = matter.status.toUpperCase() as MatterStatus
+
+			console.log(matter)
+
+			return matter
 		},
 	},
+	Matter: {
+		status(matter: Matter): MatterStatus {
+			return matter.status.toUpperCase() as MatterStatus
+		},
+		async postDate(matter: Matter): Promise<Date> {
+			const dates: number[] = []
 
+			if (matter.passedAt) {
+				dates.push(matter.passedAt.getTime())
+			}
+
+			if (matter.introducedAt) {
+				dates.push(matter.introducedAt.getTime())
+			}
+
+			if (matter.agendaDate) {
+				dates.push(matter.agendaDate.getTime())
+			}
+
+			return new Date(Math.max(...dates))
+		},
+	},
 	Date: date,
 }
 
