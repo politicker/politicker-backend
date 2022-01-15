@@ -1,9 +1,5 @@
 scalar Date
 
-type Like {
-	id: ID!
-}
-
 enum MatterStatus {
 	ENACTED
 	COMMITTEE
@@ -22,41 +18,25 @@ enum MatterStatus {
 
 type Matter {
 	id: ID!
-	shortDescription: String!
-	longDescription: String!
-	billWould: String!
-	fileNumber: String!
+	shortDescription: String
+	longDescription: String
+	billWould: String
+	fileNumber: String
 	typeName: String!
 	status: MatterStatus!
 	committeeName: String!
-	lastModifiedAt: Date!
-	introducedAt: Date!
-	passedAt: String!
-	enactedAt: String!
-	agendaDate: String!
-	enactmentNumber: String!
+	lastModifiedAt: Date
+	introducedAt: Date
+	passedAt: Date
+	enactedAt: Date
+	agendaDate: Date
+	enactmentNumber: String
 	nycLegislatureGuid: String!
-	updatedAt: String!
+	updatedAt: Date
 	postDate: Date!
-
-	likes: [Like!]!
-	liked: Boolean!
-	likeCount: Int!
-}
-
-input CreateLikeInput {
-	MatterID: ID!
-}
-
-type CreateLikeResponse {
-	matter: Matter!
 }
 
 type Query {
-	# bills: [Bill!]!
 	matters: [Matter!]!
-}
-
-type Mutation {
-	createLike(input: CreateLikeInput!): CreateLikeResponse!
+	matter(id: ID!): Matter!
 }
