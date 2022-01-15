@@ -1,4 +1,4 @@
-import { GraphQLScalarType, GraphQLScalarSerializer, Kind } from 'graphql'
+import { GraphQLScalarType, Kind } from 'graphql'
 
 export const date = new GraphQLScalarType({
 	name: 'Date',
@@ -6,10 +6,10 @@ export const date = new GraphQLScalarType({
 	serialize(value): string {
 		return new Date(value as string).toISOString()
 	},
-	parseValue(value) {
+	parseValue(value): Date {
 		return new Date(value as string) // Convert incoming string to Date
 	},
-	parseLiteral(ast) {
+	parseLiteral(ast): Date | null {
 		if (ast.kind === Kind.STRING) {
 			return new Date(ast.value)
 		}
