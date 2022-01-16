@@ -1,17 +1,14 @@
 import { toCamel } from 'snake-camel'
 import knex from '../db'
-import type {
-	QueryMatterArgs,
-	Resolvers,
-	Matter,
-} from '../generated/schema-types'
-import { MatterStatus } from '../generated/schema-types'
 import { date } from './scalars'
+import type API from '../generated/schema-types'
 
-const resolvers: Resolvers = {
+const resolvers: API.Resolvers = {
 	Query: {
-		async matters(): Promise<Matter[]> {
-			const rows = await knex<Matter>('nyc_council_matters')
+		async matters(): Promise<API.Matter[]> {
+			// const row = await
+
+			const rows = await knex<API.Matter>('nyc_council_matters')
 				.select('*')
 				.select(
 					knex.raw(
@@ -29,10 +26,10 @@ const resolvers: Resolvers = {
 				throw new Error('failed to fetch rows')
 			}
 
-			return rows.map((r) => toCamel(r) as Matter)
+			return rows.map((r) => toCamel(r) as API.Matter)
 		},
-		async matter(_: {}, args: QueryMatterArgs): Promise<Matter> {
-			let matter = await knex<Matter>('nyc_council_matters')
+		async matter(_: {}, args: API.QueryMatterArgs): Promise<API.Matter> {
+			let matter = await knex<API.Matter>('nyc_council_matters')
 				.where({
 					id: args.id,
 				})
@@ -42,8 +39,8 @@ const resolvers: Resolvers = {
 				throw new Error(`matter ${args.id} not found`)
 			}
 
-			matter = toCamel(matter) as Matter
-			matter.status = matter.status.toUpperCase() as MatterStatus
+			matter = toCamel(matter) as API.Matter
+			matter.status = matter.status.toUpperCase() as API.MatterStatus
 
 			console.log(matter)
 
@@ -51,10 +48,10 @@ const resolvers: Resolvers = {
 		},
 	},
 	Matter: {
-		status(matter: Matter): MatterStatus {
-			return matter.status.toUpperCase() as MatterStatus
+		status(matter: API.Matter): API.MatterStatus {
+			return matter.status.toUpperCase() as API.MatterStatus
 		},
-		async postDate(matter: Matter): Promise<Date> {
+		async postDate(matter: API.Matter): Promise<Date> {
 			const dates: number[] = []
 
 			if (matter.passedAt) {
